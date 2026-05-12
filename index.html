@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Tax - Tư Vấn Thuế Chuyên Nghiệp</title>
+    <!-- React & Libraries -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .scroll-smooth { scroll-behavior: smooth; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        // Map Lucide icons từ thư viện CDN
+        const Icon = ({ name, size = 24, className = "" }) => {
+            const LucideIcon = lucide.icons[name];
+            if (!LucideIcon) return null;
+            return <i data-lucide={name} className={className} style={{ width: size, height: size, display: 'inline-block' }}></i>;
+        };
+
+        const App = () => {
+            const [isMenuOpen, setIsMenuOpen] = useState(false);
+            const [scrolled, setScrolled] = useState(false);
+            const [activeTab, setActiveTab] = useState('enterprise');
+            const [revenue, setRevenue] = useState(100000000);
+            const [industry, setIndustry] = useState('fashion');
+
+            const industries = {
+                fashion: { name: 'Bán lẻ Quần áo', taxRate: 0.015, costRate: 0.65, label: 'Thời trang', icon: 'ShoppingBag' },
+                fnb: { name: 'Dịch vụ Ăn uống', taxRate: 0.03, costRate: 0.55, label: 'Ẩn thực', icon: 'Utensils' },
+                electronics: { name: 'Thiết bị Điện tử', taxRate: 0.015, costRate: 0.85, label: 'Điện tử', icon: 'Cpu' },
+                cosmetics: { name: 'Mỹ phẩm & Làm đẹp', taxRate: 0.015, costRate: 0.60, label: 'Mỹ phẩm', icon: 'Sparkles' },
+                household: { name: 'Đồ gia dụng', taxRate: 0.015, costRate: 0.70, label: 'Gia dụng', icon: 'Home' },
+                consulting: { name: 'Dịch vụ Tư vấn', taxRate: 0.05, costRate: 0.30, label: 'Tư vấn', icon: 'UserCheck' },
+                accessories: { name: 'Phụ kiện', taxRate: 0.015, costRate: 0.50, label: 'Phụ kiện', icon: 'Headphones' }
+            };
+
+            useEffect(() => {
+                const handleScroll = () => setScrolled(window.scrollY > 50);
+                window.addEventListener('scroll', handleScroll);
+                lucide.createIcons();
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
+
+            useEffect(() => {
+                lucide.createIcons();
+            }, [activeTab, industry]);
+
+            const calculateFinance = () => {
+                const selected = industries[industry];
+                const tax = revenue * selected.taxRate;
+                const operatingCost = revenue * selected.costRate;
+                const profit = revenue - tax - operatingCost;
+                return { tax, operatingCost, profit };
+            };
+
+            const results = calculateFinance();
+            const formatVND = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+
+            return (
+                <div className="min-h-screen bg-slate-50 text-slate-900 scroll-smooth">
+                    {/* NAVIGATION */}
+                    <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-lg py-2' : 'bg-transparent py-5'}`}>
+                        <div className="container mx-auto px-6 flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                                <div className="w-10 h-10 bg-indigo-900 rounded-lg flex items-center justify-center text-amber-400">
+                                    <i data-lucide="scale" size="24"></i>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className={`text-xl font-bold tracking-tight leading-none ${scrolled ? 'text-indigo-900' : 'text-white'}`}>NEXUS TAX</span>
+                                    <span className="text-[10px] font-semibold text-amber-600 uppercase tracking-widest">Compliance</span>
+                                </div>
+                            </div>
+                            
+                            <div className="hidden lg:flex items-center gap-7">
+                                {['Trang chủ', 'Dịch vụ', 'Dự tính Thuế', 'Cẩm nang', 'Liên hệ'].map((item) => (
+                                    <a key={item} href={`#${item === 'Trang chủ' ? 'home' : item === 'Dịch vụ' ? 'services' : item === 'Dự tính Thuế' ? 'calculator' : item === 'Cẩm nang' ? 'handbook' : 'contact'}`} className={`text-sm font-bold transition-colors uppercase tracking-tight ${scrolled ? 'text-slate-700 hover:text-indigo-700' : 'text-slate-200 hover:text-white'}`}>
+                                        {item}
+                                    </a>
+                                ))}
+                                <button className="bg-amber-500 text-indigo-950 px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-amber-600 transition-all shadow-md">
+                                    Tư vấn ngay
+                                </button>
+                            </div>
+
+                            <button className={`lg:hidden p-2 ${scrolled ? 'text-indigo-900' : 'text-white'}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                                <i data-lucide={isMenuOpen ? "x" : "menu"}></i>
+                            </button>
+                        </div>
+                    </nav>
+
+                    {/* HERO */}
+                    <section id="home" className="relative pt-32 pb-20 lg:pt-52 lg:pb-40 overflow-hidden bg-slate-900">
+                        <div className="container mx-auto px-6 relative z-10 flex flex-col lg:flex-row items-center gap-16">
+                            <div className="lg:w-3/5 space-y-8 text-white text-center lg:text-left">
+                                <div className="inline-flex items-center gap-2 bg-indigo-500/20 text-indigo-300 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border border-indigo-500/30">
+                                    <i data-lucide="shield-check" style={{width: 14}}></i> Chuyên gia tư vấn thuế uy tín
+                                </div>
+                                <h1 className="text-5xl lg:text-7xl font-extrabold leading-[1.1]">
+                                    Làm <span className="text-amber-500">Đúng Thuế</span><br />
+                                    Vững Bước Kinh Doanh
+                                </h1>
+                                <p className="text-xl text-slate-300 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                                    Giải pháp tuân thủ và tối ưu thuế chuyên sâu cho hộ kinh doanh và doanh nghiệp SME tại Việt Nam.
+                                </p>
+                                <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center lg:justify-start">
+                                    <button onClick={() => document.getElementById('services').scrollIntoView()} className="bg-indigo-600 text-white px-10 py-4 rounded-xl font-black text-lg hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-500/20">
+                                        HỖ TRỢ DOANH NGHIỆP
+                                    </button>
+                                    <button onClick={() => document.getElementById('calculator').scrollIntoView()} className="bg-white text-indigo-950 px-10 py-4 rounded-xl font-bold text-lg hover:bg-slate-100 transition-all">
+                                        DÀNH CHO CÁ NHÂN
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="lg:w-2/5 w-full">
+                                <div className="bg-gradient-to-br from-indigo-800 to-indigo-950 p-8 rounded-3xl border border-white/10 shadow-2xl">
+                                    <div className="space-y-6">
+                                        <div className="flex justify-between text-sm mb-1">
+                                            <span className="text-white">Hiệu quả tối ưu</span>
+                                            <span className="text-amber-400">92%</span>
+                                        </div>
+                                        <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                                            <div className="bg-amber-500 h-full w-[92%]"></div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="bg-white/5 p-4 rounded-2xl text-center border border-white/5">
+                                                <p className="text-slate-400 text-[10px] uppercase font-bold mb-1">Hoàn thuế TB</p>
+                                                <p className="text-xl font-black text-white">45Tr+</p>
+                                            </div>
+                                            <div className="bg-white/5 p-4 rounded-2xl text-center border border-white/5">
+                                                <p className="text-slate-400 text-[10px] uppercase font-bold mb-1">Tiết kiệm</p>
+                                                <p className="text-xl font-black text-white">20%</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* CALCULATOR */}
+                    <section id="calculator" className="py-24 bg-white">
+                        <div className="container mx-auto px-6">
+                            <div className="text-center mb-16">
+                                <h2 className="text-indigo-600 font-black mb-2 uppercase tracking-widest text-sm">Finance Lab</h2>
+                                <h3 className="text-4xl font-bold text-slate-900">Bảng dự tính Thuế & Lợi nhuận</h3>
+                            </div>
+
+                            <div className="max-w-5xl mx-auto bg-slate-50 rounded-[40px] shadow-2xl border border-slate-200 flex flex-col md:flex-row overflow-hidden">
+                                <div className="md:w-1/2 p-8 lg:p-12 border-b md:border-b-0 md:border-r border-slate-200">
+                                    <h4 className="text-xl font-bold mb-8 flex items-center gap-2">
+                                        <i data-lucide="calculator" className="text-indigo-600"></i> Nhập thông số
+                                    </h4>
+                                    <div className="space-y-8">
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-500 uppercase mb-3">Ngành hàng</label>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {Object.entries(industries).map(([key, ind]) => (
+                                                    <button 
+                                                        key={key}
+                                                        onClick={() => setIndustry(key)}
+                                                        className={`p-3 text-xs font-bold rounded-xl border-2 transition-all ${industry === key ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-white bg-white text-slate-500'}`}
+                                                    >
+                                                        {ind.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-500 uppercase mb-3">Doanh thu (Tháng)</label>
+                                            <input 
+                                                type="number" 
+                                                value={revenue}
+                                                onChange={(e) => setRevenue(Number(e.target.value))}
+                                                className="w-full bg-white border-2 border-slate-100 rounded-2xl p-4 text-2xl font-black text-indigo-900 focus:border-indigo-600 outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="md:w-1/2 bg-indigo-950 p-8 lg:p-12 text-white">
+                                    <h4 className="text-xl font-bold mb-8 flex items-center gap-2">
+                                        <i data-lucide="pie-chart" className="text-amber-400"></i> Kết quả dự báo
+                                    </h4>
+                                    <div className="space-y-6">
+                                        <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
+                                            <div className="flex justify-between">
+                                                <span className="text-indigo-300">Dự trù Thuế:</span>
+                                                <span className="font-bold text-red-400">-{formatVND(results.tax)}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-indigo-300">Chi phí vận hành:</span>
+                                                <span className="font-bold text-amber-400">-{formatVND(results.operatingCost)}</span>
+                                            </div>
+                                        </div>
+                                        <div className="pt-6 border-t border-white/10 text-center">
+                                            <span className="text-indigo-300 text-sm">Lợi nhuận ròng dự tính:</span>
+                                            <div className="text-4xl font-black text-emerald-400 mt-2">{formatVND(results.profit)}</div>
+                                        </div>
+                                        <button className="w-full bg-amber-500 text-indigo-950 py-4 rounded-2xl font-black text-lg hover:bg-amber-400 transition-all">
+                                            TƯ VẤN CHI TIẾT
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* CONTACT */}
+                    <section id="contact" className="py-24 bg-slate-900">
+                        <div className="container mx-auto px-6 text-center text-white">
+                            <h2 className="text-4xl font-bold mb-6">Sẵn sàng tối ưu thuế?</h2>
+                            <p className="text-slate-400 mb-10 max-w-xl mx-auto">Để lại thông tin, chuyên gia của chúng tôi sẽ liên hệ tư vấn giải pháp tối ưu nhất cho bạn.</p>
+                            <div className="flex flex-col md:flex-row justify-center gap-6">
+                                <div className="flex items-center gap-3 justify-center"><i data-lucide="phone" className="text-amber-500"></i> <span className="text-xl font-bold">1900 6789</span></div>
+                                <div className="flex items-center gap-3 justify-center"><i data-lucide="mail" className="text-amber-500"></i> <span className="text-xl">contact@nexustax.vn</span></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <footer className="py-8 bg-white border-t text-center text-slate-400 text-sm">
+                        © 2024 Đại Lý Thuế Nexus. Đồng hành cùng sự thịnh vượng của bạn.
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
